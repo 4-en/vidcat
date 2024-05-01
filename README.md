@@ -21,7 +21,7 @@ cd vidcat
 
 ```bash
 # Install binary
-cargo install --path .
+cargo install --git https://github.com/4-en/vidcat.git
 ```
 
 ## Usage
