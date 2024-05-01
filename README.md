@@ -5,10 +5,12 @@ Vidcat is a command-line tool designed to display images and videos directly in 
 
 ## Features
 
-- Display images in the terminal using half-block rendering for higher resolution.
-- Scale images to fit the terminal dimensions.
-- Support for basic video rendering, including subtitles (future feature).
-- possibly auto generated subtitles
+[x] Display images in the terminal using half-block rendering for higher resolution.
+[x] Scale images to fit the terminal dimensions.
+[ ] Support for basic video rendering, including subtitles (future feature).
+[ ] possibly auto generated subtitles
+[ ] pipe support
+[ ] streaming support
 
 ## Installation
 
