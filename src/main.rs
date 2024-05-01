@@ -1,10 +1,10 @@
-use image::{open, DynamicImage, ImageBuffer, Rgb};
+use image::{open, ImageBuffer, Rgb};
 use crossterm::{
-    cursor, execute, style::{self, Color, Print}, ExecutableCommand
+    execute, style::{self, Color, Print}, ExecutableCommand
 };
 use std::io::{stdout, Write};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+// use std::sync::atomic::{AtomicBool, Ordering};
+// use std::sync::Arc;
 use std::error::Error;
 
 
@@ -17,7 +17,7 @@ fn print_image(img: ImageBuffer<Rgb<u8>, Vec<u8>>) {
     let width = img.width();
     let hight = img.height();
 
-    // print two lines at once, use ▀ and ▄ to get more resolution
+    // print two lines at once, use background color for top line and foreground color for bottom line
     for y in (0..hight).step_by(2) {
         for x in 0..width {
             let top = img.get_pixel(x, y);
@@ -62,10 +62,12 @@ fn load_image(path: &str) -> Result<ImageBuffer<Rgb<u8>, Vec<u8>>, Box<dyn Error
     Ok(img)
 }
 
-fn scale_to(img: &ImageBuffer<Rgb<u8>, Vec<u8>>, width: u32) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
+fn scale_to_terminal_dimensions(img: &ImageBuffer<Rgb<u8>, Vec<u8>>) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
     let (w, h) = img.dimensions();
-    let scale = width as f32 / w as f32;
+    let (terminal_width, _terminal_height) = crossterm::terminal::size().unwrap();
+    let scale = terminal_width as f32 / w as f32;
     let height = (h as f32 * scale) as u32;
+    let width = terminal_width as u32;
     let scaled = image::imageops::resize(img, width, height, image::imageops::FilterType::Nearest);
     scaled
 }
@@ -73,7 +75,7 @@ fn scale_to(img: &ImageBuffer<Rgb<u8>, Vec<u8>>, width: u32) -> ImageBuffer<Rgb<
 fn main() {
     let img = load_image("test.png").unwrap();
 
-    let img = scale_to(&img, 100);
+    let img = scale_to_terminal_dimensions(&img);
     print_image(img);
     reset_terminal();
 }
