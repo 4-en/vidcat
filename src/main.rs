@@ -6,6 +6,7 @@ use std::io::{stdout, Write};
 // use std::sync::atomic::{AtomicBool, Ordering};
 // use std::sync::Arc;
 use std::error::Error;
+use clap::{App, Arg};
 
 
 fn reset_terminal() {
@@ -14,11 +15,20 @@ fn reset_terminal() {
 
 fn print_image(img: ImageBuffer<Rgb<u8>, Vec<u8>>) {
     let mut stdout = stdout();
+
+    // TODO: create buffer before printing to stdout
+
     let width = img.width();
     let hight = img.height();
 
     // print two lines at once, use background color for top line and foreground color for bottom line
     for y in (0..hight).step_by(2) {
+        
+        // cut off last line if image height is odd
+        if y + 1 >= hight {
+            break;
+        }
+
         for x in 0..width {
             let top = img.get_pixel(x, y);
             let bottom = img.get_pixel(x, y + 1);
@@ -37,6 +47,7 @@ fn print_image(img: ImageBuffer<Rgb<u8>, Vec<u8>>) {
                 g: bottom_color[1],
                 b: bottom_color[2],
             };
+
 
             stdout
                 .execute(style::SetBackgroundColor(top_color))
@@ -72,8 +83,23 @@ fn scale_to_terminal_dimensions(img: &ImageBuffer<Rgb<u8>, Vec<u8>>) -> ImageBuf
     scaled
 }
 
+fn create_app() -> App<'static> {
+    App::new("vidcat")
+        .version("0.1.0")
+        .author("Ben Schumacher")
+        .about("Display images and videos in the terminal")
+        .arg(Arg::with_name("input")
+            .help("The input file to display")
+            .required(true)
+            .index(1))
+}
+
 fn main() {
-    let img = load_image("test.png").unwrap();
+
+    let matches = create_app().get_matches();
+    let input = matches.value_of("input").unwrap();
+
+    let img = load_image(input).unwrap();
 
     let img = scale_to_terminal_dimensions(&img);
     print_image(img);
